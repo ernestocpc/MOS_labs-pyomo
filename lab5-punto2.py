@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import sympy as sp
 
-def plot_graph():
+def plot_graph(puntos):
     xs = np.linspace(-3, 3, 100)
     ys = (xs**5) -  8*(xs**3) + 10*(xs) + 6
 
@@ -15,36 +15,40 @@ def plot_graph():
     plt.ylabel("y")
     plt.grid(True)
 
+    for punto in puntos:
+
+        if punto == puntos[0]:
+            plt.plot(punto[0], punto[1], "ro")
+
+        elif punto == puntos[-1]:
+            plt.plot(punto[0], punto[1], "ro")
+
+        else:
+            # Show the dot black
+            plt.plot(punto[0], punto[1], "ko")
+
+    legend_colors = ['black', 'black' , 'red']
+    plt.legend(["f(x) = x^5 - 8x^3 + 10x + 6", "Máximos y mínimos globales", "Máximos y mínimos locales"],)
+        
     plt.show()
 
 
-def newton_raphson_intervalo(f, x_min, x_max, alpha, convergence=0.001):
+def newton_raphson_2d(f, x_guess, alpha, convergence=0.001):
     x = sp.symbols("x")
+    f_prime = sp.diff(f, x)
+    f_double_prime = sp.diff(f_prime, x)
 
-    f_prime = sp.diff(f, x) # Primera derivada: 5x^4 - 24x^2 + 10
-    f_double_prime = sp.diff(f_prime, x) # Segunda derivada: 20x^3 - 48x
+    x_i = x_guess
 
-    # Sacar puntos a evaluar
-    x_values = np.linspace(x_min, x_max, 100)
-    max_min_posibles = []
-
-
-
-    for x_i in x_values:
+    while True:
         f_prime_val = f_prime.subs(x, x_i)
         f_double_prime_val = f_double_prime.subs(x, x_i)
 
         if abs(f_prime_val) < convergence:
-            max_min_posibles.append((round(x_i, 2), round(f.subs(x, x_i), 2)))
+            break
 
-
-        # Como converger??
-        x_new = x_i - alpha * f_prime_val / f_double_prime_val
-        print(x_i, x_new)
-        if x_new >= x_min and x_new <= x_max:
-            x_i = x_new
-
-    return max_min_posibles
+        x_i = x_i - alpha * f_prime_val / f_double_prime_val
+    return round(x_i, 2), round(f.subs(x, x_i), 2)
 
 
 def main():
@@ -52,15 +56,16 @@ def main():
     x = sp.symbols("x")
     f = x**5 - 8*x**3 + 10*x + 6
 
-    # Suposición inicial y alpha
-    x_min = -3
-    x_max = 3
-    alpha = 0.5
 
-    # Aplicamos el método de Newton-Raphson
-    resultado = newton_raphson_intervalo(f, x_min, x_max, alpha)
-    print(resultado)
-    # plot = plot_graph(resultado)
+    x_values = np.linspace(-3, 3, 10)
+    puntos_min_max = []
+    for x_guess in x_values:
+        resultado = newton_raphson_2d(f, x_guess, 1)
+        if resultado not in puntos_min_max:
+            puntos_min_max.append(resultado)
+
+    puntos_min_max.sort(key=lambda x: x[0])
+    plot_graph(puntos_min_max)
 
 
 main()
