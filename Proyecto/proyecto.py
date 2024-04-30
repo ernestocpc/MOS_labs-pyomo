@@ -56,7 +56,6 @@ model.Y = Var(model.i, model.j, model.k, domain=PositiveReals)
 
 # Función objetivo
 model.multi_objective = Objective(expr=sum(model.X[i, j] * model.P[i, j] for i in model.i for j in model.j), sense=maximize)
-#model.obj = Objective(expr=sum(model.X[i, j] * model.P[i, j] for i in model.i for j in model.j))
 
 # Definir restricciones de inicialización para las variables X
 def init_X_rule(model, i, j):
