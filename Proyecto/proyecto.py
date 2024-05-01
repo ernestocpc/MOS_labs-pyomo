@@ -54,6 +54,11 @@ model.X = Var(model.z, model.z, domain=Binary)
 model.Y = Var(model.z, model.z, model.k, domain=PositiveReals) 
 
 # Función objetivo
+"""
+La Función Objetivo busca maximizar las zonas cubiertas seg ́un su prioridad
+por el personal necesario. Dado que se usa un sistema de prioridad donde 1 es
+minimo y 5 es maximo el algoritmo va a priorizar cubrir zonas con alta prioridad.
+"""
 model.multi_objective = Objective(expr=sum(model.X[i, j] * model.P[i, j] for i in model.z for j in model.z), sense=maximize)
 
 
