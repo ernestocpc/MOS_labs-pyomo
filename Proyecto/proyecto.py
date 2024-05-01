@@ -22,9 +22,9 @@ model.E = Param(initialize=1)
 model.A = Param(initialize=4)
 
 prioridades = {
-    ('p1', 'p1'): 5, ('p1', 'p2'): 2, ('p1', 'p3'): 1,
-    ('p2', 'p1'): 3, ('p2', 'p2'): 2, ('p2', 'p3'): 1,
-    ('p3', 'p1'): 3, ('p3', 'p2'): 5, ('p3', 'p3'): 2
+    ('p1', 'p1'): 5, ('p1', 'p2'): 2, ('p1', 'p3'): 0.01,
+    ('p2', 'p1'): 3, ('p2', 'p2'): 2, ('p2', 'p3'): 0.01,
+    ('p3', 'p1'): 3, ('p3', 'p2'): 5, ('p3', 'p3'): 0.01
 }
 model.P = Param(model.z, model.z, initialize=prioridades)
 
@@ -61,9 +61,9 @@ minimo y 5 es maximo el algoritmo va a priorizar cubrir zonas con alta prioridad
 """
 model.multi_objective = Objective(expr=sum(model.X[i, j] * model.P[i, j] for i in model.z for j in model.z), sense=maximize)
 
-#Restricción
+#Restricciones
 """
-Restricción 2: No se pueden asignar más doctores a una zona que el total
+Restriccion 2: No se pueden asignar más doctores a una zona que el total
 de doctores que están disponibles para el hospital, indicados en los parámetros
 iniciales.
 
