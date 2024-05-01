@@ -1,3 +1,9 @@
+# -*- coding: utf-8 -*-
+"""
+Lab 6 - Punto 2
+Autores: Maria Alejandra Estrada - 202021060
+         Ernesto Carlos Perez - 202112530
+"""
 #Plot Imports
 import matplotlib.pyplot as plt
 
