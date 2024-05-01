@@ -23,29 +23,29 @@ model.A = Param(initialize=4)
 
 prioridades = {
     ('p1', 'p1'): 5, ('p1', 'p2'): 2, ('p1', 'p3'): 0.01,
-    ('p2', 'p1'): 3, ('p2', 'p2'): 2, ('p2', 'p3'): 0.01,
-    ('p3', 'p1'): 3, ('p3', 'p2'): 5, ('p3', 'p3'): 0.01
+    ('p2', 'p1'): 3, ('p2', 'p2'): 2, ('p2', 'p3'): 0.01,  
+    ('p3', 'p1'): 3, ('p3', 'p2'): 5, ('p3', 'p3'): 0.01 
 }
 model.P = Param(model.z, model.z, initialize=prioridades)
 
 doctores = {
-    ('p1', 'p1'): 0.1, ('p1', 'p2'): 0.1, ('p1', 'p3'): 0.1,
-    ('p2', 'p1'): 0.1, ('p2', 'p2'): 0.1, ('p2', 'p3'): 0.1,
-    ('p3', 'p1'): 0.1, ('p3', 'p2'): 0.1, ('p3', 'p3'): 0.1
+    ('p1', 'p1'): 2, ('p1', 'p2'): 0, ('p1', 'p3'): 0,
+    ('p2', 'p1'): 0, ('p2', 'p2'): 0, ('p2', 'p3'): 0,
+    ('p3', 'p1'): 1, ('p3', 'p2'): 0, ('p3', 'p3'): 0
 } 
 model.numD = Param(model.z, model.z, initialize=doctores)
 
 enfermeras = {
-    ('p1', 'p1'): 0.1, ('p1', 'p2'): 0.1, ('p1', 'p3'): 0.1,
-    ('p2', 'p1'): 0.1, ('p2', 'p2'): 0.1, ('p2', 'p3'): 0.1,
-    ('p3', 'p1'): 0.1, ('p3', 'p2'): 0.1, ('p3', 'p3'): 0.1
+    ('p1', 'p1'): 0, ('p1', 'p2'): 2, ('p1', 'p3'): 1,
+    ('p2', 'p1'): 2, ('p2', 'p2'): 2, ('p2', 'p3'): 1,
+    ('p3', 'p1'): 0, ('p3', 'p2'): 0, ('p3', 'p3'): 0
 }
 model.numE = Param(model.z, model.z, initialize=enfermeras)
 
 administradores = {
-    ('p1', 'p1'): 0.1, ('p1', 'p2'): 0.1, ('p1', 'p3'): 0.1,
-    ('p2', 'p1'): 0.1, ('p2', 'p2'): 0.1, ('p2', 'p3'): 0.1,
-    ('p3', 'p1'): 0.1, ('p3', 'p2'): 0.1, ('p3', 'p3'): 0.1
+    ('p1', 'p1'): 0, ('p1', 'p2'): 0, ('p1', 'p3'): 0,
+    ('p2', 'p1'): 0, ('p2', 'p2'): 0, ('p2', 'p3'): 0,
+    ('p3', 'p1'): 0, ('p3', 'p2'): 1, ('p3', 'p3'): 1
 }
 model.numA = Param(model.z, model.z, initialize=administradores) 
 
@@ -54,14 +54,9 @@ model.X = Var(model.z, model.z, domain=Binary)
 model.Y = Var(model.z, model.z, model.k, domain=PositiveReals) 
 
 # Función objetivo
-"""
-La Función Objetivo busca maximizar las zonas cubiertas seg ́un su prioridad
-por el personal necesario. Dado que se usa un sistema de prioridad donde 1 es
-minimo y 5 es maximo el algoritmo va a priorizar cubrir zonas con alta prioridad.
-"""
 model.multi_objective = Objective(expr=sum(model.X[i, j] * model.P[i, j] for i in model.z for j in model.z), sense=maximize)
 
-#Restricciones
+
 """
 Restriccion 2: No se pueden asignar más doctores a una zona que el total
 de doctores que están disponibles para el hospital, indicados en los parámetros
@@ -75,9 +70,7 @@ def restriccion2_rule(model, k):
         return Constraint.Skip
 model.restriccion2 = Constraint(model.k, rule=restriccion2_rule)
 
-
-
 # Solver
-results = SolverFactory('glpk').solve(model)
+SolverFactory('glpk').solve(model)
 model.display()
 print("\nFuncion objetivo:", model.multi_objective())
