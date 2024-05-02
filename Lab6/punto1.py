@@ -16,8 +16,7 @@ from pyomo.opt import SolverFactory
 Model = ConcreteModel()
 
 # Sets
-numNodes = 5
-Model.N = RangeSet(1, numNodes)
+Model.N = RangeSet(1, 5)
 
 """
 Agregamos entonces como restricción la función de hops: Fhops(x) ≤ epsilon. El epsilon debería tener 
