@@ -112,7 +112,7 @@ f2_values = []
 
 # Solver para los diferentes epsilons
 for epsilon in epsilon_values:
-    # Constraint: Hops
+    # Restricción de Hops f1
     def hops_res(Model):
         return Model.f1 <= epsilon
 
@@ -126,7 +126,7 @@ for epsilon in epsilon_values:
     Model.del_component(Model.hops_res)
 
 # Plot d3 multiobjetivoHopsCosts_sumasPonderadas.py
-plt.plot(f1_vec,f2_vec,'o-.');
+plt.plot(f1_values,f2_values,'o-.');
 plt.title('Frente Óptimo de Pareto');
 plt.xlabel('F1')
 plt.ylabel('F2')
