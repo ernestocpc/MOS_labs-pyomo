@@ -4,7 +4,7 @@ Quiz 5 - Proyecto
 Autores: Maria Alejandra Estrada - 202021060
          Ernesto Carlos Perez - 202112530
 """
-
+# Respuesta Correcta = 17
 # Importaciones
 from pyomo.environ import *
 from pyomo.opt import SolverFactory
@@ -18,8 +18,8 @@ model.k = Set(initialize=['d', 'e', 'a'])
 
 # Parametros
 model.D = Param(initialize=2)
-model.E = Param(initialize=1)
-model.A = Param(initialize=4)
+model.A = Param(initialize=1)
+model.E = Param(initialize=4)
 
 prioridades = {
     ('p1', 'p1'): 5, ('p1', 'p2'): 2, ('p1', 'p3'): 0.01,
@@ -62,6 +62,31 @@ minimo y 5 es maximo el algoritmo va a priorizar cubrir zonas con alta prioridad
 model.multi_objective = Objective(expr=sum(model.X[i, j] * model.P[i, j] for i in model.z for j in model.z), sense=maximize)
 
 
+
+"""
+Restriccion 1: Los doctores que est ́an ubicados en una zona ofrecen cobertura
+ ́unicamente a las zonas adyacentes de su posici ́on.
+"""
+def restriccion1_rule(model, i, j, k):
+    if k == 'd':
+        if i == 'p1' and j == 'p2':
+            return model.Y[i, j, k] <= model.numD[i, j]
+        elif i == 'p1' and j == 'p3':
+            return model.Y[i, j, k] <= model.numD[i, j]
+        elif i == 'p2' and j == 'p1':
+            return model.Y[i, j, k] <= model.numD[i, j]
+        elif i == 'p2' and j == 'p3':
+            return model.Y[i, j, k] <= model.numD[i, j]
+        elif i == 'p3' and j == 'p1':
+            return model.Y[i, j, k] <= model.numD[i, j]
+        elif i == 'p3' and j == 'p2':
+            return model.Y[i, j, k] <= model.numD[i, j]
+        else:
+            return model.Y[i, j, k] == 0
+    else:
+        return Constraint.Skip
+model.restriccion1 = Constraint(model.z, model.z, model.k, rule=restriccion1_rule)
+
 """
 Restriccion 2: No se pueden asignar más doctores a una zona que el total
 de doctores que están disponibles para el hospital, indicados en los parámetros
@@ -74,6 +99,39 @@ def restriccion2_rule(model, k):
     else:
         return Constraint.Skip
 model.restriccion2 = Constraint(model.k, rule=restriccion2_rule)
+
+"""
+Restriccion 3: No se pueden asignar m as enfermeras a una zona que el total
+de enfermeras que est ́an disponibles para el hospital, indicados en los par ́ametros
+iniciales.
+
+"""
+def restriccion3_rule(model, k):
+    if k == 'e':
+        return sum(model.Y[i, j, k] for i in model.z for j in model.z) <= model.E
+    else:
+        return Constraint.Skip
+model.restriccion3 = Constraint(model.k, rule=restriccion3_rule)
+
+
+"""
+Restriccion 4: No se pueden asignar m as administradores a una zona que el to-
+tal de doctores que est ́an disponibles para el hospital, indicados en los par ́ametros
+iniciales.
+"""
+def restriccion4_rule(model, k):
+    if k == 'a':
+        return sum(model.Y[i, j, k] for i in model.z for j in model.z) <= model.A
+    else:
+        return Constraint.Skip
+model.restriccion4 = Constraint(model.k, rule=restriccion4_rule)
+
+
+# Restriccion 5: Relacionar variable X y Y 
+#def restriccion5_rule(model, i, j, k):
+#    return model.Y[i, j, k] <= model.X[i, j] * sum(model.numD[i, j], model.numE[i, j], model.numA[i, j])
+
+#model.restriccion5 = Constraint(model.z, model.z, model.k, rule=restriccion5_rule)
 
 # Solver
 SolverFactory('glpk').solve(model)
