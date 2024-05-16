@@ -128,12 +128,13 @@ model.restriccion4 = Constraint(model.k, rule=restriccion4_rule)
 
 
 # Restriccion 5: Relacionar variable X y Y 
-#def restriccion5_rule(model, i, j, k):
-#    return model.Y[i, j, k] <= model.X[i, j] * sum(model.numD[i, j], model.numE[i, j], model.numA[i, j])
+def restriccion5_rule(model, i, j):
+   return sum(model.Y[i,j,k] for k in model.k) <= model.X[i,j] * 100000000
 
-#model.restriccion5 = Constraint(model.z, model.z, model.k, rule=restriccion5_rule)
+model.restriccion5 = Constraint(model.z, model.z, rule=restriccion5_rule)
 
 # Solver
 SolverFactory('glpk').solve(model)
+model.k.display()
 model.display()
 print("\nFuncion objetivo:", model.multi_objective())
