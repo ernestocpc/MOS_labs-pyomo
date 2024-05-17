@@ -4,7 +4,6 @@ Quiz 5 - Proyecto
 Autores: Maria Alejandra Estrada - 202021060
          Ernesto Carlos Perez - 202112530
 """
-# Respuesta Correcta = 17
 # Importaciones
 from pyomo.environ import *
 from pyomo.opt import SolverFactory
@@ -69,28 +68,35 @@ Restriccion 1: Los doctores que est ́an ubicados en una zona ofrecen cobertura
  ́unicamente a las zonas adyacentes de su posición.
 """
 
-"""
-@Mariale -> ESTA ES LA QUE FALTA
+
 def restriccion1_rule(model, i, j, k):
     if k == 'd':
-        if i == 'p1' and j == 'p2':
-            return model.Y[i, j, k] <= model.numD[i, j]
+        # Zonas adyacentes
+        adyacentes = []
+        if i == 'p1' and j == 'p1':
+            adyacentes = [('p1', 'p2'), ('p2', 'p1')]
+        elif i == 'p1' and j == 'p2':
+            adyacentes = [('p1', 'p1'), ('p1', 'p3'), ('p2', 'p2')]
         elif i == 'p1' and j == 'p3':
-            return model.Y[i, j, k] <= model.numD[i, j]
+            adyacentes = [('p1', 'p2'), ('p2', 'p3')]
         elif i == 'p2' and j == 'p1':
-            return model.Y[i, j, k] <= model.numD[i, j]
+            adyacentes = [('p1', 'p1'), ('p2', 'p2'), ('p3', 'p1')]
+        elif i == 'p2' and j == 'p2':
+            adyacentes = [('p1', 'p2'), ('p2', 'p1'), ('p2', 'p3'), ('p3', 'p2')]
         elif i == 'p2' and j == 'p3':
-            return model.Y[i, j, k] <= model.numD[i, j]
+            adyacentes = [('p1', 'p3'), ('p2', 'p2'), ('p3', 'p3')]
         elif i == 'p3' and j == 'p1':
-            return model.Y[i, j, k] <= model.numD[i, j]
+            adyacentes = [('p2', 'p1'), ('p3', 'p2')]
         elif i == 'p3' and j == 'p2':
-            return model.Y[i, j, k] <= model.numD[i, j]
-        else:
-            return model.Y[i, j, k] == 0
+            adyacentes = [('p2', 'p2'), ('p3', 'p1'), ('p3', 'p3')]
+        elif i == 'p3' and j == 'p3':
+            adyacentes = [('p2', 'p3'), ('p3', 'p2')]
+        
+        return sum(model.Y[x, y, 'd'] for x, y in adyacentes) >= model.Y[i, j, 'd']
     else:
         return Constraint.Skip
+
 model.restriccion1 = Constraint(model.z, model.z, model.k, rule=restriccion1_rule)
-"""
 
 """
 Restriccion 2: No se pueden asignar más doctores a una zona que el total
