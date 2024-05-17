@@ -55,6 +55,7 @@ model.Y = Var(model.z, model.z, model.k, domain=PositiveReals)
 # Función objetivo
 model.multi_objective = Objective(expr=sum(model.Y[i, j, k] * model.P[i, j] for i in model.z for j in model.z for k in model.k), sense=maximize)
 
+"""
 # Restricción 1: Los doctores que están ubicados en una zona ofrecen cobertura
 # únicamente a las zonas adyacentes de su posición.
 def restriccion1_rule(model, i, j, k):
@@ -75,6 +76,7 @@ def restriccion1_rule(model, i, j, k):
 
 model.restriccion1 = Constraint(model.z, model.z, model.k, rule=restriccion1_rule)
 
+"""
 
 # Restricción 2: No se pueden asignar más doctores a una zona que el total
 # de doctores que están disponibles para el hospital, indicados en los parámetros
