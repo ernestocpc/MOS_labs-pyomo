@@ -1,6 +1,6 @@
-# -*- coding: utf-8 -*-
+# -- coding: utf-8 --
 """
-Quiz 5 - Proyecto
+Proyecto - Escenario 1
 Autores: Maria Alejandra Estrada - 202021060
          Ernesto Carlos Perez - 202112530
 """
@@ -53,57 +53,32 @@ model.X = Var(model.z, model.z, domain=Binary)
 model.Y = Var(model.z, model.z, model.k, domain=PositiveReals) 
 
 # Función objetivo
-"""
-La Función Objetivo busca maximizar las zonas cubiertas seg ́un su prioridad
-por el personal necesario. Dado que se usa un sistema de prioridad donde 1 es
-minimo y 5 es maximo el algoritmo va a priorizar cubrir zonas con alta prioridad.
-"""
-#model.multi_objective = Objective(expr=sum(model.X[i, j] * model.P[i, j] for i in model.z for j in model.z), sense=maximize)
-
 model.multi_objective = Objective(expr=sum(model.Y[i, j, k] * model.P[i, j] for i in model.z for j in model.z for k in model.k), sense=maximize)
 
-
-"""
-Restriccion 1: Los doctores que est ́an ubicados en una zona ofrecen cobertura
- ́unicamente a las zonas adyacentes de su posición.
-"""
-
-
+# Restricción 1: Los doctores que están ubicados en una zona ofrecen cobertura
+# únicamente a las zonas adyacentes de su posición.
 def restriccion1_rule(model, i, j, k):
     if k == 'd':
-        # Zonas adyacentes
-        adyacentes = []
-        if i == 'p1' and j == 'p1':
-            adyacentes = [('p1', 'p2'), ('p2', 'p1')]
-        elif i == 'p1' and j == 'p2':
-            adyacentes = [('p1', 'p1'), ('p1', 'p3'), ('p2', 'p2')]
-        elif i == 'p1' and j == 'p3':
-            adyacentes = [('p1', 'p2'), ('p2', 'p3')]
-        elif i == 'p2' and j == 'p1':
-            adyacentes = [('p1', 'p1'), ('p2', 'p2'), ('p3', 'p1')]
-        elif i == 'p2' and j == 'p2':
-            adyacentes = [('p1', 'p2'), ('p2', 'p1'), ('p2', 'p3'), ('p3', 'p2')]
-        elif i == 'p2' and j == 'p3':
-            adyacentes = [('p1', 'p3'), ('p2', 'p2'), ('p3', 'p3')]
-        elif i == 'p3' and j == 'p1':
-            adyacentes = [('p2', 'p1'), ('p3', 'p2')]
-        elif i == 'p3' and j == 'p2':
-            adyacentes = [('p2', 'p2'), ('p3', 'p1'), ('p3', 'p3')]
-        elif i == 'p3' and j == 'p3':
-            adyacentes = [('p2', 'p3'), ('p3', 'p2')]
-        
-        return sum(model.Y[x, y, 'd'] for x, y in adyacentes) >= model.Y[i, j, 'd']
+        adyacentes_i = {
+            'p1': ['p1', 'p2'],
+            'p2': ['p1', 'p2', 'p3'],
+            'p3': ['p2', 'p3']
+        }
+        adyacentes_j = {
+            'p1': ['p1', 'p2', 'p3'],
+            'p2': ['p1', 'p2', 'p3'],
+            'p3': ['p2', 'p3']
+        }
+        return model.Y[i, j, k] <= sum(model.numD[i, adj] for adj in adyacentes_i[i]) + sum(model.numD[j, adj] for adj in adyacentes_j[j])
     else:
         return Constraint.Skip
 
 model.restriccion1 = Constraint(model.z, model.z, model.k, rule=restriccion1_rule)
 
-"""
-Restriccion 2: No se pueden asignar más doctores a una zona que el total
-de doctores que están disponibles para el hospital, indicados en los parámetros
-iniciales.
 
-"""
+# Restricción 2: No se pueden asignar más doctores a una zona que el total
+# de doctores que están disponibles para el hospital, indicados en los parámetros
+# iniciales.
 def restriccion2_rule(model, k):
     if k == 'd':
         return sum(model.Y[i, j, k] for i in model.z for j in model.z) <= model.D
@@ -111,12 +86,9 @@ def restriccion2_rule(model, k):
         return Constraint.Skip
 model.restriccion2 = Constraint(model.k, rule=restriccion2_rule)
 
-"""
-Restriccion 3: No se pueden asignar m as enfermeras a una zona que el total
-de enfermeras que est ́an disponibles para el hospital, indicados en los par ́ametros
-iniciales.
-
-"""
+# Restricción 3: No se pueden asignar más enfermeras a una zona que el total
+# de enfermeras que están disponibles para el hospital, indicados en los parámetros
+# iniciales.
 def restriccion3_rule(model, k):
     if k == 'e':
         return sum(model.Y[i, j, k] for i in model.z for j in model.z) <= model.E
@@ -124,12 +96,9 @@ def restriccion3_rule(model, k):
         return Constraint.Skip
 model.restriccion3 = Constraint(model.k, rule=restriccion3_rule)
 
-
-"""
-Restriccion 4: No se pueden asignar m as administradores a una zona que el to-
-tal de doctores que est ́an disponibles para el hospital, indicados en los par ́ametros
-iniciales.
-"""
+# Restricción 4: No se pueden asignar más administradores a una zona que el total
+# de doctores que están disponibles para el hospital, indicados en los parámetros
+# iniciales.
 def restriccion4_rule(model, k):
     if k == 'a':
         return sum(model.Y[i, j, k] for i in model.z for j in model.z) <= model.A
@@ -137,33 +106,25 @@ def restriccion4_rule(model, k):
         return Constraint.Skip
 model.restriccion4 = Constraint(model.k, rule=restriccion4_rule)
 
-"""
-Restriccion 5: Relacionar variable X y Y 
-"""
+# Restricción 5: Relacionar variable X y Y 
 def restriccion5_rule(model, i, j):
-   return sum(model.Y[i,j,k] for k in model.k) <= model.X[i,j] * 100000000
+   return sum(model.Y[i, j, k] for k in model.k) <= model.X[i, j] * 100000000
 
 model.restriccion5 = Constraint(model.z, model.z, rule=restriccion5_rule)
 
-"""
-Restricción 6: Solo se pueden asignar doctores donde se requieran
-"""
+# Restricción 6: Solo se pueden asignar doctores donde se requieran
 def restriccion6_rule(model, i, j):
     return model.Y[i, j, 'd'] <= model.numD[i, j]
 
 model.restriccion6 = Constraint(model.z, model.z, rule=restriccion6_rule)
 
-"""
-Restricción 7: Solo se pueden asignar enfermeras donde se requieran
-"""
+# Restricción 7: Solo se pueden asignar enfermeras donde se requieran
 def restriccion7_rule(model, i, j):
     return model.Y[i, j, 'e'] <= model.numE[i, j]
 
 model.restriccion7 = Constraint(model.z, model.z, rule=restriccion7_rule)
 
-"""
-Restricción 8: Solo se pueden asignar enfermeras donde se requieran
-"""
+# Restricción 8: Solo se pueden asignar administradores donde se requieran
 def restriccion8_rule(model, i, j):
     return model.Y[i, j, 'a'] <= model.numA[i, j]
 
