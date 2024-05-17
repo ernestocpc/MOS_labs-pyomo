@@ -65,7 +65,7 @@ model.multi_objective = Objective(expr=sum(model.X[i, j] * model.P[i, j] for i i
 
 """
 Restriccion 1: Los doctores que est ́an ubicados en una zona ofrecen cobertura
- ́unicamente a las zonas adyacentes de su posici ́on.
+ ́unicamente a las zonas adyacentes de su posición.
 """
 def restriccion1_rule(model, i, j, k):
     if k == 'd':
