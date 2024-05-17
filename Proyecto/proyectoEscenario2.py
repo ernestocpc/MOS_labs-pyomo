@@ -1,6 +1,6 @@
 # -- coding: utf-8 --
 """
-Proyecto - Escenario 1
+Proyecto - Escenario 2
 Autores: Maria Alejandra Estrada - 202021060
          Ernesto Carlos Perez - 202112530
 """
